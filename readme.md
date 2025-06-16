@@ -1,4 +1,4 @@
-# Creative Portfolio SAAS Application
+# Creative Portfolio SAAS Application created with Bolt.new
 
 A full-stack SaaS application designed for creative professionals to showcase their work, manage projects, and grow their business. This platform includes robust user authentication, a dynamic portfolio system, an administrative dashboard for managing plans and coupons, and integrated tools like a faceswap studio and a todo board.
 
@@ -70,7 +70,8 @@ yarn dev
 ```
 
 ### 5. Features
-* Landing Page
+* Landing Page <domain>
+* Admin panel : <domain>/admin
 * Supabase authentication and backend support
     * Social Auth Authentication
     * Email Authentication and Email confirmation. 
@@ -79,7 +80,7 @@ yarn dev
     * Profile Page
     * Settings
 
-* Admin Panel
+* Admin Panel(<domain>/admin)
     * User management 
     * Plan management
     * Coupon Management
