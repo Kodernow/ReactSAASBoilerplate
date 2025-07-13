@@ -6,7 +6,7 @@ import AdminRoute from './components/admin/AdminRoute';
 import PlanManagement from './pages/admin/PlanManagement';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
-import Home from './pages/Home';
+import Landing from './pages/Landing';
 import Profile from './pages/Profile';
 import { Toaster } from 'react-hot-toast';
 
@@ -18,7 +18,7 @@ function App() {
           <Routes>
             <Route path="/auth/signin" element={<SignIn />} />
             <Route path="/auth/signup" element={<SignUp />} />
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/profile" element={<Profile />} />
             <Route
               path="/admin/plans"
