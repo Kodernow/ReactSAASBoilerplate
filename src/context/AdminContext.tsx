@@ -2,30 +2,32 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Plan, Coupon, UserProfile, UserStats } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
+import { supabase } from '../lib/supabase';
 
 interface AdminContextType {
   // Plans
   plans: Plan[];
-  addPlan: (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => void;
-  updatePlan: (id: string, updates: Partial<Plan>) => void;
-  deletePlan: (id: string) => void;
+  addPlan: (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updatePlan: (id: string, updates: Partial<Plan>) => Promise<void>;
+  deletePlan: (id: string) => Promise<void>;
   getPlanById: (id: string) => Plan | undefined;
-  
+
   // Coupons
   coupons: Coupon[];
-  addCoupon: (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => void;
-  updateCoupon: (id: string, updates: Partial<Coupon>) => void;
-  deleteCoupon: (id: string) => void;
+  addCoupon: (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => Promise<void>;
+  updateCoupon: (id: string, updates: Partial<Coupon>) => Promise<void>;
+  deleteCoupon: (id: string) => Promise<void>;
   getCouponByCode: (code: string) => Coupon | undefined;
-  
+
   // Users
   users: UserProfile[];
   getUserStats: (userId: string) => UserStats;
-  updateUserStatus: (userId: string, isActive: boolean) => void;
+  updateUserStatus: (userId: string, isActive: boolean) => Promise<void>;
   resetUserPassword: (userId: string, newPassword: string) => void;
-  
+
   // Admin verification
   isAdmin: (email: string) => boolean;
+  loading: boolean;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -39,151 +41,182 @@ export const useAdmin = () => {
 };
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [plans, setPlans] = useState<Plan[]>(() => {
-    const saved = localStorage.getItem('admin_plans');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    
-    // Default plans
-    const defaultPlans: Plan[] = [
-      {
-        id: uuidv4(),
-        name: 'Free',
-        description: 'Perfect for getting started',
-        price: 0,
-        currency: 'USD',
-        billingPeriod: 'monthly',
-        features: {
-          todoboardEnabled: true,
-          customDomain: false,
-          prioritySupport: false,
-        },
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: uuidv4(),
-        name: 'Pro',
-        description: 'For professional users',
-        price: 29,
-        currency: 'USD',
-        billingPeriod: 'monthly',
-        features: {
-          todoboardEnabled: true,
-          customDomain: true,
-          prioritySupport: true,
-        },
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-      {
-        id: uuidv4(),
-        name: 'Enterprise',
-        description: 'For teams and organizations',
-        price: 99,
-        currency: 'USD',
-        billingPeriod: 'monthly',
-        features: {
-          todoboardEnabled: true,
-          customDomain: true,
-          prioritySupport: true,
-        },
-        isActive: true,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      },
-    ];
-    
-    return defaultPlans;
-  });
-
-  const [coupons, setCoupons] = useState<Coupon[]>(() => {
-    const saved = localStorage.getItem('admin_coupons');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [users, setUsers] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('admin_users');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    localStorage.setItem('admin_plans', JSON.stringify(plans));
-  }, [plans]);
+    const fetchAdminData = async () => {
+      try {
+        setLoading(true);
 
-  useEffect(() => {
-    localStorage.setItem('admin_coupons', JSON.stringify(coupons));
-  }, [coupons]);
+        const [plansData, couponsData, usersData] = await Promise.all([
+          supabase.from('plans').select('*'),
+          supabase.from('coupons').select('*'),
+          supabase.from('users').select('*'),
+        ]);
 
-  useEffect(() => {
-    localStorage.setItem('admin_users', JSON.stringify(users));
-  }, [users]);
+        if (plansData.error) {
+          console.error('Error fetching plans:', plansData.error);
+          toast.error(`Failed to fetch plans: ${plansData.error.message}`);
+        } else {
+          setPlans(plansData.data || []);
+        }
 
-  const addPlan = (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newPlan: Plan = {
-      ...plan,
-      id: uuidv4(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+        if (couponsData.error) {
+          console.error('Error fetching coupons:', couponsData.error);
+          toast.error(`Failed to fetch coupons: ${couponsData.error.message}`);
+        } else {
+          setCoupons(couponsData.data || []);
+        }
+
+        if (usersData.error) {
+          console.error('Error fetching users:', usersData.error);
+          toast.error(`Failed to fetch users: ${usersData.error.message}`);
+        } else {
+          setUsers(usersData.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching admin data:', error);
+        toast.error(`Failed to fetch admin data: ${error.message}`);
+      } finally {
+        setLoading(false);
+      }
     };
-    setPlans(prev => [...prev, newPlan]);
-    toast.success('Plan added successfully');
+
+    fetchAdminData();
+  }, []);
+
+  const addPlan = async (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => {
+    try {
+      const { data, error } = await supabase
+        .from('plans')
+        .insert([{ ...plan }])
+        .select('*');
+
+      if (error) {
+        console.error('Error adding plan:', error);
+        toast.error(`Failed to add plan: ${error.message}`); // Display Supabase error message
+      } else {
+        setPlans(prev => [...prev, data[0]]);
+        toast.success('Plan added successfully');
+      }
+    } catch (err) {
+      console.error('Error adding plan:', err);
+      toast.error(`Failed to add plan: ${err.message}`); // Display generic error message
+    }
   };
 
-  const updatePlan = (id: string, updates: Partial<Plan>) => {
-    setPlans(prev =>
-      prev.map(plan =>
-        plan.id === id ? { ...plan, ...updates, updatedAt: Date.now() } : plan
-      )
-    );
-    toast.success('Plan updated successfully');
+  const updatePlan = async (id: string, updates: Partial<Plan>) => {
+    const { data, error } = await supabase
+      .from('plans')
+      .update(updates)
+      .eq('id', id)
+      .select('*');
+
+    if (error) {
+      console.error('Error updating plan:', error);
+      toast.error('Failed to update plan');
+    } else {
+      setPlans(prev =>
+        prev.map(plan => (plan.id === id ? { ...plan, ...data[0] } : plan))
+      );
+      toast.success('Plan updated successfully');
+    }
   };
 
-  const deletePlan = (id: string) => {
-    setPlans(prev => prev.filter(plan => plan.id !== id));
-    toast.success('Plan deleted successfully');
+  const deletePlan = async (id: string) => {
+    const { error } = await supabase
+      .from('plans')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting plan:', error);
+      toast.error('Failed to delete plan');
+    } else {
+      setPlans(prev => prev.filter(plan => plan.id !== id));
+      toast.success('Plan deleted successfully');
+    }
   };
 
   const getPlanById = (id: string) => {
     return plans.find(plan => plan.id === id);
   };
 
-  const addCoupon = (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => {
-    const newCoupon: Coupon = {
-      ...coupon,
-      id: uuidv4(),
-      usedCount: 0,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    setCoupons(prev => [...prev, newCoupon]);
-    toast.success('Coupon added successfully');
+  const addCoupon = async (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => {
+    const { data, error } = await supabase
+      .from('coupons')
+      .insert([{ ...coupon, usedCount: 0 }])
+      .select('*');
+
+    if (error) {
+      console.error('Error adding coupon:', error);
+      toast.error('Failed to add coupon');
+    } else {
+      setCoupons(prev => [...prev, data[0]]);
+      toast.success('Coupon added successfully');
+    }
   };
 
-  const updateCoupon = (id: string, updates: Partial<Coupon>) => {
-    setCoupons(prev =>
-      prev.map(coupon =>
-        coupon.id === id ? { ...coupon, ...updates, updatedAt: Date.now() } : coupon
-      )
-    );
-    toast.success('Coupon updated successfully');
+  const updateCoupon = async (id: string, updates: Partial<Coupon>) => {
+    const { data, error } = await supabase
+      .from('coupons')
+      .update(updates)
+      .eq('id', id)
+      .select('*');
+
+    if (error) {
+      console.error('Error updating coupon:', error);
+      toast.error('Failed to update coupon');
+    } else {
+      setCoupons(prev =>
+        prev.map(coupon => (coupon.id === id ? { ...coupon, ...data[0] } : coupon))
+      );
+      toast.success('Coupon updated successfully');
+    }
   };
 
-  const deleteCoupon = (id: string) => {
-    setCoupons(prev => prev.filter(coupon => coupon.id !== id));
-    toast.success('Coupon deleted successfully');
+  const deleteCoupon = async (id: string) => {
+    const { error } = await supabase
+      .from('coupons')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting coupon:', error);
+      toast.error('Failed to delete coupon');
+    } else {
+      setCoupons(prev => prev.filter(coupon => coupon.id !== id));
+      toast.success('Coupon deleted successfully');
+    }
   };
 
   const getCouponByCode = (code: string) => {
-    return coupons.find(coupon => 
-      coupon.code.toLowerCase() === code.toLowerCase() && 
+    return coupons.find(coupon =>
+      coupon.code.toLowerCase() === code.toLowerCase() &&
       coupon.isActive &&
       (!coupon.expiresAt || coupon.expiresAt > Date.now()) &&
       (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit)
     );
+  };
+
+  const updateUserStatus = async (userId: string, isActive: boolean) => {
+    const { error } = await supabase
+      .from('users')
+      .update({ isActive })
+      .eq('id', userId);
+
+    if (error) {
+      console.error('Error updating user status:', error);
+      toast.error('Failed to update user status');
+    } else {
+      setUsers(prev =>
+        prev.map(user => (user.id === userId ? { ...user, isActive } : user))
+      );
+      toast.success(`User ${isActive ? 'activated' : 'deactivated'} successfully`);
+    }
   };
 
   const getUserStats = (userId: string): UserStats => {
@@ -195,22 +228,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
   };
 
-  const updateUserStatus = (userId: string, isActive: boolean) => {
-    setUsers(prev =>
-      prev.map(user =>
-        user.id === userId ? { ...user, isActive } : user
-      )
-    );
-    toast.success(`User ${isActive ? 'activated' : 'deactivated'} successfully`);
-  };
-
   const resetUserPassword = (userId: string, newPassword: string) => {
     // This would typically call an API to reset the password
     toast.success('Password reset successfully');
   };
 
   const isAdmin = (email: string) => {
-    return email === 'harshal9901@gmail.com';
+    return email === 'admin@admin.com';
   };
 
   return (
@@ -231,9 +255,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateUserStatus,
         resetUserPassword,
         isAdmin,
+        loading
       }}
     >
-      {children}
+      {!loading ? children : (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        </div>
+      )}
     </AdminContext.Provider>
   );
 };
