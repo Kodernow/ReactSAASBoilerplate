@@ -29,10 +29,10 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const { plans, getCouponByCode } = useAdmin();
   const [currentSubscription, setCurrentSubscription] = useState<UserSubscription | null>(null);
 
-  const availablePlans = plans.filter(plan => plan.isActive);
+  const availablePlans = plans.filter(plan => plan.is_active);
   
   const currentPlan = currentSubscription 
-    ? plans.find(plan => plan.id === currentSubscription.planId) || null
+    ? plans.find(plan => plan.id === currentSubscription.plan_id) || null
     : plans.find(plan => plan.name === 'Free') || null; // Default to free plan
 
   useEffect(() => {
@@ -47,13 +47,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
         if (freePlan) {
           const defaultSubscription: UserSubscription = {
             id: `sub_${user.id}`,
-            userId: user.id,
-            planId: freePlan.id,
+            user_id: user.id,
+            plan_id: freePlan.id,
             status: 'active',
-            startDate: Date.now(),
-            endDate: Date.now() + (365 * 24 * 60 * 60 * 1000), // 1 year
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            start_date: Date.now(),
+            end_date: Date.now() + (365 * 24 * 60 * 60 * 1000), // 1 year
+            created_at: Date.now(),
+            updated_at: Date.now(),
           };
           setCurrentSubscription(defaultSubscription);
           localStorage.setItem(`subscription_${user.id}`, JSON.stringify(defaultSubscription));
@@ -69,7 +69,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return null;
     }
 
-    if (!coupon.applicablePlans.includes(planId)) {
+    if (!coupon.applicable_plans.includes(planId)) {
       toast.error('This coupon is not applicable to the selected plan');
       return null;
     }
@@ -80,8 +80,8 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
       return null;
     }
 
-    const discountedPrice = plan.price * (1 - coupon.discountPercentage / 100);
-    toast.success(`Coupon applied! ${coupon.discountPercentage}% discount`);
+    const discountedPrice = plan.price * (1 - coupon.discount_percentage / 100);
+    toast.success(`Coupon applied! ${coupon.discount_percentage}% discount`);
     
     return { discountedPrice, coupon };
   };
@@ -101,13 +101,13 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     // Create new subscription
     const newSubscription: UserSubscription = {
       id: `sub_${user.id}_${Date.now()}`,
-      userId: user.id,
-      planId: plan.id,
+      user_id: user.id,
+      plan_id: plan.id,
       status: 'active',
-      startDate: Date.now(),
-      endDate: Date.now() + (plan.billingPeriod === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      start_date: Date.now(),
+      end_date: Date.now() + (plan.billing_period === 'yearly' ? 365 : 30) * 24 * 60 * 60 * 1000,
+      created_at: Date.now(),
+      updated_at: Date.now(),
     };
 
     setCurrentSubscription(newSubscription);
@@ -122,7 +122,7 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const updatedSubscription = {
       ...currentSubscription,
       status: 'cancelled' as const,
-      updatedAt: Date.now(),
+      updated_at: Date.now(),
     };
 
     setCurrentSubscription(updatedSubscription);

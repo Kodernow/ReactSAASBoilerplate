@@ -25,56 +25,56 @@ export interface Plan {
   description: string;
   price: number;
   currency: string;
-  billingPeriod: 'monthly' | 'yearly';
+  billing_period: 'monthly' | 'yearly';
   features: PlanFeatures;
-  isActive: boolean;
-  createdAt: number;
-  updatedAt: number;
+  is_active: boolean;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface PlanFeatures {
-  todoboardEnabled: boolean;
-  customDomain: boolean;
-  prioritySupport: boolean;
+  todoboard_enabled: boolean;
+  custom_domain: boolean;
+  priority_support: boolean;
 }
 
 export interface Coupon {
   id: string;
   code: string;
   description: string;
-  discountPercentage: number;
-  applicablePlans: string[];
-  isActive: boolean;
-  expiresAt?: number;
-  usageLimit?: number;
-  usedCount: number;
-  createdAt: number;
-  updatedAt: number;
+  discount_percentage: number;
+  applicable_plans: string[];
+  is_active: boolean;
+  expires_at?: number;
+  usage_limit?: number;
+  used_count: number;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface UserSubscription {
   id: string;
-  userId: string;
-  planId: string;
+  user_id: string;
+  plan_id: string;
   status: 'active' | 'cancelled' | 'expired';
-  startDate: number;
-  endDate: number;
-  paymentMethod?: string;
-  stripeSubscriptionId?: string;
-  razorpaySubscriptionId?: string;
-  createdAt: number;
-  updatedAt: number;
+  start_date: number;
+  end_date: number;
+  payment_method?: string;
+  stripe_subscription_id?: string;
+  razorpay_subscription_id?: string;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface UserProfile {
   id: string;
   email: string;
-  fullName: string;
-  isAdmin: boolean;
+  full_name: string;
+  is_admin: boolean;
   subscription?: UserSubscription;
-  createdAt: number;
-  lastLoginAt: number;
-  isActive: boolean;
+  created_at: number;
+  last_login_at: number;
+  is_active: boolean;
 }
 
 export interface UserStats {
@@ -84,12 +84,12 @@ export interface UserStats {
 
 export interface PaymentIntent {
   id: string;
-  userId: string;
-  planId: string;
-  couponId?: string;
+  user_id: string;
+  plan_id: string;
+  coupon_id?: string;
   amount: number;
   currency: string;
   status: 'pending' | 'succeeded' | 'failed';
-  paymentMethod: 'stripe' | 'razorpay';
-  createdAt: number;
+  payment_method: 'stripe' | 'razorpay';
+  created_at: number;
 }

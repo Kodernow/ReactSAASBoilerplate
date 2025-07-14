@@ -13,13 +13,13 @@ const PlanManagement: React.FC = () => {
     description: '',
     price: 0,
     currency: 'USD',
-    billingPeriod: 'monthly' as 'monthly' | 'yearly',
+    billing_period: 'monthly' as 'monthly' | 'yearly',
     features: {
-      todoboardEnabled: true,
-      customDomain: false,
-      prioritySupport: false,
+      todoboard_enabled: true,
+      custom_domain: false,
+      priority_support: false,
     } as PlanFeatures,
-    isActive: true,
+    is_active: true,
   });
 
   const handleAddPlan = () => {
@@ -29,13 +29,13 @@ const PlanManagement: React.FC = () => {
       description: '',
       price: 0,
       currency: 'USD',
-      billingPeriod: 'monthly',
+      billing_period: 'monthly',
       features: {
-        todoboardEnabled: true,
-        customDomain: false,
-        prioritySupport: false,
+        todoboard_enabled: true,
+        custom_domain: false,
+        priority_support: false,
       },
-      isActive: true,
+      is_active: true,
     });
     setShowModal(true);
   };
@@ -47,9 +47,9 @@ const PlanManagement: React.FC = () => {
       description: plan.description,
       price: plan.price,
       currency: plan.currency,
-      billingPeriod: plan.billingPeriod,
+      billing_period: plan.billing_period,
       features: { ...plan.features },
-      isActive: plan.isActive,
+      is_active: plan.is_active,
     });
     setShowModal(true);
   };
@@ -124,33 +124,33 @@ const PlanManagement: React.FC = () => {
 
             <div className="plan-pricing">
               <span className="plan-price">${plan.price}</span>
-              <span className="plan-period">/{plan.billingPeriod}</span>
+              <span className="plan-period">/{plan.billing_period}</span>
             </div>
 
             <div className="plan-features">
               <div className="feature-item">
                 <span className="feature-label">Kanban Boards:</span>
-                <span className={`feature-status ${plan.features.todoboardEnabled ? 'enabled' : 'disabled'}`}>
-                  {plan.features.todoboardEnabled ? <Check size={16} /> : <X size={16} />}
+                <span className={`feature-status ${plan.features.todoboard_enabled ? 'enabled' : 'disabled'}`}>
+                  {plan.features.todoboard_enabled ? <Check size={16} /> : <X size={16} />}
                 </span>
               </div>
               <div className="feature-item">
                 <span className="feature-label">Custom Domain:</span>
-                <span className={`feature-status ${plan.features.customDomain ? 'enabled' : 'disabled'}`}>
-                  {plan.features.customDomain ? <Check size={16} /> : <X size={16} />}
+                <span className={`feature-status ${plan.features.custom_domain ? 'enabled' : 'disabled'}`}>
+                  {plan.features.custom_domain ? <Check size={16} /> : <X size={16} />}
                 </span>
               </div>
               <div className="feature-item">
                 <span className="feature-label">Priority Support:</span>
-                <span className={`feature-status ${plan.features.prioritySupport ? 'enabled' : 'disabled'}`}>
-                  {plan.features.prioritySupport ? <Check size={16} /> : <X size={16} />}
+                <span className={`feature-status ${plan.features.priority_support ? 'enabled' : 'disabled'}`}>
+                  {plan.features.priority_support ? <Check size={16} /> : <X size={16} />}
                 </span>
               </div>
             </div>
 
             <div className="plan-status">
-              <span className={`status-badge ${plan.isActive ? 'status-active' : 'status-inactive'}`}>
-                {plan.isActive ? 'Active' : 'Inactive'}
+              <span className={`status-badge ${plan.is_active ? 'status-active' : 'status-inactive'}`}>
+                {plan.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
@@ -213,11 +213,11 @@ const PlanManagement: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="billingPeriod">Billing Period</label>
+                  <label htmlFor="billing_period">Billing Period</label>
                   <select
-                    id="billingPeriod"
-                    value={formData.billingPeriod}
-                    onChange={(e) => setFormData(prev => ({ ...prev, billingPeriod: e.target.value as 'monthly' | 'yearly' }))}
+                    id="billing_period"
+                    value={formData.billing_period}
+                    onChange={(e) => setFormData(prev => ({ ...prev, billing_period: e.target.value as 'monthly' | 'yearly' }))}
                     className="form-input"
                   >
                     <option value="monthly">Monthly</option>
@@ -244,8 +244,8 @@ const PlanManagement: React.FC = () => {
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={formData.features.todoboardEnabled}
-                      onChange={(e) => handleFeatureChange('todoboardEnabled', e.target.checked)}
+                      checked={formData.features.todoboard_enabled}
+                      onChange={(e) => handleFeatureChange('todoboard_enabled', e.target.checked)}
                     />
                     <span>Enable Kanban Boards</span>
                   </label>
@@ -253,8 +253,8 @@ const PlanManagement: React.FC = () => {
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={formData.features.customDomain}
-                      onChange={(e) => handleFeatureChange('customDomain', e.target.checked)}
+                      checked={formData.features.custom_domain}
+                      onChange={(e) => handleFeatureChange('custom_domain', e.target.checked)}
                     />
                     <span>Custom Domain</span>
                   </label>
@@ -262,8 +262,8 @@ const PlanManagement: React.FC = () => {
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={formData.features.prioritySupport}
-                      onChange={(e) => handleFeatureChange('prioritySupport', e.target.checked)}
+                      checked={formData.features.priority_support}
+                      onChange={(e) => handleFeatureChange('priority_support', e.target.checked)}
                     />
                     <span>Priority Support</span>
                   </label>
@@ -271,8 +271,8 @@ const PlanManagement: React.FC = () => {
                   <label className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
                     />
                     <span>Active Plan</span>
                   </label>

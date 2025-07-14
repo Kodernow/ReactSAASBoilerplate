@@ -12,23 +12,23 @@ const CouponManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     code: '',
     description: '',
-    discountPercentage: 10,
-    applicablePlans: [] as string[],
-    isActive: true,
-    expiresAt: '',
-    usageLimit: '',
+    discount_percentage: 10,
+    applicable_plans: [] as string[],
+    is_active: true,
+    expires_at: '',
+    usage_limit: '',
   });
-
+ 
   const handleAddCoupon = () => {
     setEditingCoupon(null);
     setFormData({
       code: '',
       description: '',
-      discountPercentage: 10,
-      applicablePlans: [],
-      isActive: true,
-      expiresAt: '',
-      usageLimit: '',
+      discount_percentage: 10,
+      applicable_plans: [],
+      is_active: true,
+      expires_at: '',
+      usage_limit: '',
     });
     setShowModal(true);
   };
@@ -38,11 +38,11 @@ const CouponManagement: React.FC = () => {
     setFormData({
       code: coupon.code,
       description: coupon.description,
-      discountPercentage: coupon.discountPercentage,
-      applicablePlans: coupon.applicablePlans,
-      isActive: coupon.isActive,
-      expiresAt: coupon.expiresAt ? new Date(coupon.expiresAt).toISOString().split('T')[0] : '',
-      usageLimit: coupon.usageLimit?.toString() || '',
+      discount_percentage: coupon.discount_percentage,
+      applicable_plans: coupon.applicable_plans,
+      is_active: coupon.is_active,
+      expires_at: coupon.expires_at ? new Date(coupon.expires_at).toISOString().split('T')[0] : '',
+      usage_limit: coupon.usage_limit?.toString() || '',
     });
     setShowModal(true);
   };
@@ -53,11 +53,11 @@ const CouponManagement: React.FC = () => {
     const couponData = {
       code: formData.code.toUpperCase(),
       description: formData.description,
-      discountPercentage: formData.discountPercentage,
-      applicablePlans: formData.applicablePlans,
-      isActive: formData.isActive,
-      expiresAt: formData.expiresAt ? new Date(formData.expiresAt).getTime() : undefined,
-      usageLimit: formData.usageLimit ? Number(formData.usageLimit) : undefined,
+      discount_percentage: formData.discount_percentage,
+      applicable_plans: formData.applicable_plans,
+      is_active: formData.is_active,
+      expires_at: formData.expires_at ? new Date(formData.expires_at).toISOString() : undefined,
+      usage_limit: formData.usage_limit ? Number(formData.usage_limit) : undefined,
     };
     
     if (editingCoupon) {
@@ -99,7 +99,7 @@ const CouponManagement: React.FC = () => {
   };
 
   const isUsageLimitReached = (coupon: Coupon) => {
-    return coupon.usageLimit ? coupon.usedCount >= coupon.usageLimit : false;
+    return coupon.usage_limit ? coupon.used_count >= coupon.usage_limit : false;
   };
 
   return (
@@ -148,11 +148,11 @@ const CouponManagement: React.FC = () => {
                   <span className="coupon-description">{coupon.description}</span>
                 </td>
                 <td>
-                  <span className="discount-percentage">{coupon.discountPercentage}%</span>
+                  <span className="discount-percentage">{coupon.discount_percentage}%</span>
                 </td>
                 <td>
                   <div className="applicable-plans">
-                    {coupon.applicablePlans.map(planId => {
+                    {coupon.applicable_plans.map(planId => {
                       const plan = plans.find(p => p.id === planId);
                       return plan ? (
                         <span key={planId} className="plan-tag">
@@ -164,19 +164,19 @@ const CouponManagement: React.FC = () => {
                 </td>
                 <td>
                   <div className="usage-info">
-                    <span className="usage-count">{coupon.usedCount}</span>
-                    {coupon.usageLimit && (
+                    <span className="usage-count">{coupon.used_count}</span>
+                    {coupon.usage_limit && (
                       <>
                         <span className="usage-separator">/</span>
-                        <span className="usage-limit">{coupon.usageLimit}</span>
+                        <span className="usage-limit">{coupon.usage_limit}</span>
                       </>
                     )}
-                    {!coupon.usageLimit && <span className="usage-unlimited">∞</span>}
+                    {!coupon.usage_limit && <span className="usage-unlimited">∞</span>}
                   </div>
                 </td>
                 <td>
-                  {coupon.expiresAt ? (
-                    <span className={`expiry-date ${isExpired(coupon.expiresAt) ? 'expired' : ''}`}>
+                  {coupon.expires_at ? (
+                     <span className={`expiry-date ${isExpired(coupon.expiresAt) ? 'expired' : ''}`}>
                       {formatDate(coupon.expiresAt)}
                     </span>
                   ) : (
@@ -258,12 +258,12 @@ const CouponManagement: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="discountPercentage">Discount Percentage</label>
+                  <label htmlFor="discount_percentage">Discount Percentage</label>
                   <input
                     type="number"
-                    id="discountPercentage"
-                    value={formData.discountPercentage}
-                    onChange={(e) => setFormData(prev => ({ ...prev, discountPercentage: Number(e.target.value) }))}
+                    id="discount_percentage"
+                    value={formData.discount_percentage}
+                    onChange={(e) => setFormData(prev => ({ ...prev, discount_percentage: Number(e.target.value) }))}
                     min="1"
                     max="100"
                     required
@@ -272,23 +272,23 @@ const CouponManagement: React.FC = () => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="expiresAt">Expiry Date (Optional)</label>
+                  <label htmlFor="expires_at">Expiry Date (Optional)</label>
                   <input
                     type="date"
-                    id="expiresAt"
-                    value={formData.expiresAt}
-                    onChange={(e) => setFormData(prev => ({ ...prev, expiresAt: e.target.value }))}
+                    id="expires_at"
+                    value={formData.expires_at}
+                    onChange={(e) => setFormData(prev => ({ ...prev, expires_at: e.target.value }))}
                     className="form-input"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="usageLimit">Usage Limit (Optional)</label>
+                  <label htmlFor="usage_limit">Usage Limit (Optional)</label>
                   <input
                     type="number"
-                    id="usageLimit"
-                    value={formData.usageLimit}
-                    onChange={(e) => setFormData(prev => ({ ...prev, usageLimit: e.target.value }))}
+                    id="usage_limit"
+                    value={formData.usage_limit}
+                    onChange={(e) => setFormData(prev => ({ ...prev, usage_limit: e.target.value }))}
                     min="1"
                     className="form-input"
                     placeholder="Leave empty for unlimited"
@@ -315,22 +315,22 @@ const CouponManagement: React.FC = () => {
                     <label key={plan.id} className="plan-checkbox-label">
                       <input
                         type="checkbox"
-                        checked={formData.applicablePlans.includes(plan.id)}
+                        checked={formData.applicable_plans.includes(plan.id)}
                         onChange={(e) => {
                           if (e.target.checked) {
                             setFormData(prev => ({
                               ...prev,
-                              applicablePlans: [...prev.applicablePlans, plan.id]
+                              applicable_plans: [...prev.applicable_plans, plan.id]
                             }));
                           } else {
                             setFormData(prev => ({
                               ...prev,
-                              applicablePlans: prev.applicablePlans.filter(id => id !== plan.id)
+                              applicable_plans: prev.applicable_plans.filter(id => id !== plan.id)
                             }));
                           }
                         }}
                       />
-                      <span>{plan.name} (${plan.price}/{plan.billingPeriod})</span>
+                      <span>{plan.name} (\${plan.price}/{plan.billing_period})</span>
                     </label>
                   ))}
                 </div>
@@ -340,8 +340,8 @@ const CouponManagement: React.FC = () => {
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
                   />
                   <span>Active Coupon</span>
                 </label>

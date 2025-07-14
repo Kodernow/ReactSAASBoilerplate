@@ -7,14 +7,14 @@ import { supabase } from '../lib/supabase';
 interface AdminContextType {
   // Plans
   plans: Plan[];
-  addPlan: (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  addPlan: (plan: Omit<Plan, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   updatePlan: (id: string, updates: Partial<Plan>) => Promise<void>;
   deletePlan: (id: string) => Promise<void>;
   getPlanById: (id: string) => Plan | undefined;
 
   // Coupons
   coupons: Coupon[];
-  addCoupon: (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => Promise<void>;
+  addCoupon: (coupon: Omit<Coupon, 'id' | 'created_at' | 'updated_at' | 'used_count'>) => Promise<void>;
   updateCoupon: (id: string, updates: Partial<Coupon>) => Promise<void>;
   deleteCoupon: (id: string) => Promise<void>;
   getCouponByCode: (code: string) => Coupon | undefined;
@@ -68,15 +68,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               description: 'Perfect for getting started',
               price: 0,
               currency: 'USD',
-              billingPeriod: 'monthly',
+              billing_period: 'monthly',
               features: {
-                todoboardEnabled: true,
-                customDomain: false,
-                prioritySupport: false,
+                todoboard_enabled: true,
+                custom_domain: false,
+                priority_support: false,
               },
-              isActive: true,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
+              is_active: true,
+              created_at: Date.now(),
+              updated_at: Date.now(),
             },
             {
               id: '2',
@@ -84,15 +84,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               description: 'For professionals and teams',
               price: 19,
               currency: 'USD',
-              billingPeriod: 'monthly',
+              billing_period: 'monthly',
               features: {
-                todoboardEnabled: true,
-                customDomain: true,
-                prioritySupport: true,
+                todoboard_enabled: true,
+                custom_domain: true,
+                priority_support: true,
               },
-              isActive: true,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
+              is_active: true,
+              created_at: Date.now(),
+              updated_at: Date.now(),
             },
           ];
           
@@ -101,14 +101,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               id: '1',
               code: 'WELCOME20',
               description: 'Welcome discount for new users',
-              discountPercentage: 20,
-              applicablePlans: ['2'],
-              isActive: true,
-              expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
-              usageLimit: 100,
-              usedCount: 5,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
+              discount_percentage: 20,
+              applicable_plans: ['2'],
+              is_active: true,
+              expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 days
+              usage_limit: 100,
+              used_count: 5,
+              created_at: Date.now(),
+              updated_at: Date.now(),
             },
           ];
           
@@ -116,11 +116,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             {
               id: '1',
               email: 'admin@admin.com',
-              fullName: 'Admin User',
-              isAdmin: true,
-              isActive: true,
-              createdAt: Date.now(),
-              lastLoginAt: Date.now(),
+              full_name: 'Admin User',
+              is_admin: true,
+              is_active: true,
+              created_at: Date.now(),
+              last_login_at: Date.now(),
             },
           ];
           
@@ -180,7 +180,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     fetchAdminData();
   }, []);
 
-  const addPlan = async (plan: Omit<Plan, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const addPlan = async (plan: Omit<Plan, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       const { data, error } = await supabase
         .from('plans')
@@ -237,18 +237,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return plans.find(plan => plan.id === id);
   };
 
-  const addCoupon = async (coupon: Omit<Coupon, 'id' | 'createdAt' | 'updatedAt' | 'usedCount'>) => {
-    const { data, error } = await supabase
-      .from('coupons')
-      .insert([{ ...coupon, usedCount: 0 }])
-      .select('*');
+  const addCoupon = async (coupon: Omit<Coupon, 'id' | 'created_at' | 'updated_at' | 'used_count'>) => {
+    try {
+      console.log('Coupon data being sent to Supabase:', coupon); // Log coupon data
+      if (coupon.expires_at) {
+        console.log('expiresAt value:', coupon.expires_at);
+        if (coupon.expires_at > 2147483647000) {
+          console.warn('expiresAt value is too large. Adjusting to maximum safe value.');
+          coupon.expires_at = 2147483647000;
+        }
+      }
 
-    if (error) {
+      const { data, error } = await supabase
+        .from('coupons')
+        .insert([{ ...coupon, used_count: 0 }])
+        .select('*');
+
+      if (error) {
+        console.error('Supabase error adding coupon:', error);
+        toast.error(`Failed to add coupon: ${error.message}`);
+      } else {
+        setCoupons(prev => [...prev, data[0]]);
+        toast.success('Coupon added successfully');
+      }
+    } catch (error: any) {
       console.error('Error adding coupon:', error);
-      toast.error('Failed to add coupon');
-    } else {
-      setCoupons(prev => [...prev, data[0]]);
-      toast.success('Coupon added successfully');
+      toast.error(`Failed to add coupon: ${error.message}`);
     }
   };
 
@@ -288,16 +302,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getCouponByCode = (code: string) => {
     return coupons.find(coupon =>
       coupon.code.toLowerCase() === code.toLowerCase() &&
-      coupon.isActive &&
-      (!coupon.expiresAt || coupon.expiresAt > Date.now()) &&
-      (!coupon.usageLimit || coupon.usedCount < coupon.usageLimit)
+      coupon.is_active &&
+      (!coupon.expires_at || coupon.expires_at > Date.now()) &&
+      (!coupon.usage_limit || coupon.used_count < coupon.usage_limit)
     );
   };
 
   const updateUserStatus = async (userId: string, isActive: boolean) => {
     const { error } = await supabase
       .from('users')
-      .update({ isActive })
+      .update({ is_active: isActive })
       .eq('id', userId);
 
     if (error) {
@@ -305,7 +319,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       toast.error('Failed to update user status');
     } else {
       setUsers(prev =>
-        prev.map(user => (user.id === userId ? { ...user, isActive } : user))
+        prev.map(user => (user.id === userId ? { ...user, is_active: isActive } : user))
       );
       toast.success(`User ${isActive ? 'activated' : 'deactivated'} successfully`);
     }
